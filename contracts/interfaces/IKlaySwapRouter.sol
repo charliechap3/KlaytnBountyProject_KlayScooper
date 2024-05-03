@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: SEE LICENSE IN LICENSE
 pragma solidity 0.8.20;
 
-interface IUniswapRouter {
+interface IKlaySwapRouter {
     function swapExactTokensForKLAY(
         uint256 amountIn,
         uint256 amountOutMin,
