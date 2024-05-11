@@ -13,6 +13,8 @@
   },
   "dependencies": {
     "@klaytn/contracts": "^1.0.6",
-    "ethers": "^6.12.1"
+    "ethers": "^6.12.1",
+    "hardhat-deploy": "^0.12.4",
+    "hardhat-verify": "^1.0.0"
   }
 }

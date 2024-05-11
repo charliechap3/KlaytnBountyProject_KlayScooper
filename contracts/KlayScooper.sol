@@ -15,7 +15,7 @@ contract KlayScooper {
 
     address private immutable i_owner;
     address private immutable i_RouterAddress;
-    uint256 private constant MIN_KLAY_AMOUNT = 0.1 Klay;
+    uint256 private constant MIN_KLAY_AMOUNT = 1;
     bytes4 private constant interfaceId = 0x01ffc9a7;
     string private constant version = "1.0.0";
 
@@ -27,7 +27,7 @@ contract KlayScooper {
 
     function _checkIfKIP7Token(address tokenAddress) internal view returns (bool) {
         KIP7 token = KIP7(tokenAddress);
-        (bool true) = token.supportsInterface(interfaceId);
+        return token.supportsInterface(interfaceId);
     }
 
     function swapTokensForKlay(address[] calldata tokenAddresses) external {
@@ -37,7 +37,7 @@ contract KlayScooper {
             address tokenAddress = tokenAddresses[i];
 
             (bool ok) = _checkIfKIP7Token(tokenAddress);
-            if(!ok) revert KlayScooper__UnsupportedToken;
+            if(!ok) revert KlayScooper__UnsupportedToken();
 
             KIP7 token = KIP7(tokenAddress);
 
@@ -46,7 +46,7 @@ contract KlayScooper {
             uint256 allowance = token.allowance(msg.sender, address(this));
             if(allowance <= tokenAmount) revert KlayScooper__InsufficientAllowance();
 
-            address memory path = new address[](2);
+            address[] memory path = new address[](2);
             path[0] = tokenAddress;
             path[1] = IKlaySwapRouter(i_RouterAddress).WKLAY();
 
