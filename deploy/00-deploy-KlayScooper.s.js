@@ -22,10 +22,9 @@ const deployKlayScooper = async ({ getNamedAccounts, deployments }) => {
     log(klayScooper.address);
 
 
-    if (!chainId == 31337 && chainId == 1001 && ETHERSCAN_APIKEY) {
+    if (!developmentChains.includes(network.name) && chainId == 1001 && ETHERSCAN_APIKEY) {
         await verify(klayScooper.address, args);
     }
 }
 
 module.exports.default = deployKlayScooper;
-module.exports.tags = ["all", "klayScooper"];
