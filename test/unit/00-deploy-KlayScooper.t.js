@@ -8,6 +8,8 @@ const { developmentChains } = require("../../helper-hardhat-config");
 
         let klayScooper;
         let deployer;
+        const args = ["0xe0fbB27D0E7F3a397A67a9d4864D4f4DD7cF8cB9"];
+        let tokenAddresses = [];
 
 
         beforeEach(async () => {
