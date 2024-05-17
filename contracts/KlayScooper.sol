@@ -93,6 +93,20 @@ contract KlayScooper {
         i_owner = msg.sender;
     }
 
+
+
+    function swapperBalance(address wklay) external view returns (uint) {
+        return swapperKlayBalance[wklay];
+    }
+
+    function versionCheck() external pure returns (string memory) {
+        return version;
+    }
+
+    function klayThreshold() external pure returns (uint) {
+        return MIN_KLAY_AMOUNT;
+    }
+
     /**
      * @notice KIP7 Token Interface Support.
      *
@@ -149,17 +163,5 @@ contract KlayScooper {
 
             emit TokensSwapped(msg.sender, tokenAmount);
         }
-    }
-
-    function swapperBalance(address wklay) external view returns (uint) {
-        return swapperKlayBalance[wklay];
-    }
-
-    function versionCheck() external pure returns (string memory) {
-        return version;
-    }
-
-    function klayThreshold() external pure returns (uint) {
-        return MIN_KLAY_AMOUNT;
     }
 }

@@ -8,14 +8,7 @@ const { developmentChains } = require("../../helper-hardhat-config");
 
         let klayScooper;
         let deployer;
-        const args = ["0xe0fbB27D0E7F3a397A67a9d4864D4f4DD7cF8cB9"];
-        const A = "";
-        const B = "";
-        const path = [A, B];
-        const tokenAddresses = []
 
-
-        const sendValue = await ethers.utils.parseEthers("1")
 
         beforeEach(async () => {
             deployer = (await getNamedAccounts()).deployer
@@ -37,6 +30,10 @@ const { developmentChains } = require("../../helper-hardhat-config");
         describe("swapTokensForKlay", async () => {
             it("fails if token addresses doesn't exist", async () => {
                 await expect(klayScooper.swapTokensForKlay(tokenAddresses)).to.be.revertedWith("KlayScooper__ZeroLengthArray");
+            });
+
+            it("swaps tokens for klay", async () => {
+
             });
         });
 
