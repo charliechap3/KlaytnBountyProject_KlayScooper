@@ -9,7 +9,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     const chainId = network.config.chainId;
 
 
-    if (developmentChains.includes(network.name) && chainId == 1001 && ETHERSCAN_APIKEY) {
+    if (developmentChains.includes(network.name)) {
         log("Local Network detected, deploying Mock..")
 
         const mockkip7 = await deploy("MOCKKIP7", {
@@ -17,14 +17,16 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
             args: args,
             log: true,
             blockConfirmations: network.config.blockConfirmations
-        })
+        });
 
         log("Mocks deployed...!")
         log(mockkip7.address)
         log("............................................................................")
 
-    } else {
+    } else if (!developmentChains.includes(network.name) && chainId == 1001 && ETHERSCAN_APIKEY) {
         await verify(mockkip7.address, args);
+    } else {
+        return;
     }
 }
 

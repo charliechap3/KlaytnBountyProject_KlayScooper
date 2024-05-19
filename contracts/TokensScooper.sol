@@ -12,7 +12,7 @@ contract TokensScooper {
      * and fulfills the same requirements for version tracking.
     */
 
-    string private constant version = "1.0.0";
+    string private constant i_version = "1.0.0";
 
     /**
      * @dev Stores the deployer's address.
@@ -39,10 +39,16 @@ contract TokensScooper {
     bytes4 private constant interfaceId = 0x01ffc9a7;
 
     /**
+     * @dev wrapped Klay address;
+    */
+
+    address public immutable WKLAY;
+
+    /**
      * @dev mapping of WKLAY to swapper's balance;
     */
 
-    mapping (address => uint) private swapperKlayBalance;
+    mapping (address => (mapping (address => uint))) private swapperKlayBalance;
 
     /**
      * @notice Emitted whenever tokens are minted for an account.
@@ -69,7 +75,7 @@ contract TokensScooper {
      * @dev Reverts if the tokens to swap amount is less than zero.
     */
 
-    error TokensScooper__InsufficientTokens();
+    error TokensScooper__InsufficientTokensAmount();
 
     /**
      * @dev Reverts if the allowance is less than the amount of tokens to swap.
@@ -88,19 +94,20 @@ contract TokensScooper {
      * @dev initializers the KlaySwap V2 router and deployer
     */
 
-    constructor(address _RouterAddress) {
+    constructor(address _RouterAddress, address wklay) {
         i_RouterAddress = _RouterAddress;
         i_owner = msg.sender;
+        WKLAY = KIP7(wklay);
     }
 
     /// view and pure functions
 
-    function swapperBalance(address wklay) public view returns (uint) {
-        return swapperKlayBalance[wklay];
+    function swapperBalance() public view returns (uint) {
+        return swapperKlayBalance[msg.sender][WKLAY];
     }
 
     function versionCheck() public pure returns (string memory) {
-        return version;
+        return i_version;
     }
 
     function klayThreshold() public pure returns (uint) {
@@ -150,7 +157,7 @@ contract TokensScooper {
             KIP7 token = KIP7(tokenAddress);
 
             uint256 tokenAmount = token.balanceOf(msg.sender);
-            if(tokenAmount > 0) revert TokensScooper__InsufficientTokens();
+            if(tokenAmount < 0) revert TokensScooper__InsufficientTokensAmount();
 
             uint256 allowance = token.allowance(msg.sender, address(this));
             if(allowance <= tokenAmount) revert TokensScooper__InsufficientAllowance();
