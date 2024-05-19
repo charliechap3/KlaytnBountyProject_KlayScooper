@@ -48,7 +48,7 @@ const { developmentChains } = require("../../helper-hardhat-config");
         });
 
         describe("swapTokensForKlay", async () => {
-            it("fails if token addresses doesn't exist", async () => {
+            it("reverts if token addresses doesn't exist", async () => {
                 const swaptx = tokensScooper.swapTokensForKlay(tokenAddresses);
                 await expect(swaptx).to.be.revertedWith("TokensScooper__ZeroLengthArray");
             });
@@ -61,9 +61,11 @@ const { developmentChains } = require("../../helper-hardhat-config");
             it("reverts if allowance is less than token amount", async () => {
                 const tokenAmount = ethers.utils.parseUnits("10", 18);
 
+                tokenAddresses[0] = mockKIP7.address;
                 await mockKIP7.mint(addr1.address, tokenAmount);
-                await expect(tokensScooper.connect(addr1).swapTokensForKlay([mockKIP7.address]))
-                    .to.be.revertedWith("TokensScooper__InsufficientAllowance");
+
+                const tx = tokensScooper.connect(addr1).swapTokensForKlay(tokenAddresses);
+                await expect(tx).to.be.revertedWith("TokensScooper__InsufficientAllowance");
             })
         });
 
