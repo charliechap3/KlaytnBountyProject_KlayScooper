@@ -5,7 +5,7 @@ import "./interfaces/IKlaySwapRouter.sol";
 import "./Lib/TransferHelper.sol";
 import "@klaytn/contracts/KIP/token/KIP7/KIP7.sol";
 
-contract KlayScooper {
+contract TokensScooper {
 
     /**
      * @dev Stores the version of the contract
@@ -18,13 +18,13 @@ contract KlayScooper {
      * @dev Stores the deployer's address.
     */
 
-    address public immutable i_owner;
+    address private immutable i_owner;
 
     /**
      * @dev Stores the address of the KlaySwapV2 contract.
     */
 
-    address public immutable i_RouterAddress;
+    address private immutable i_RouterAddress;
 
     /**
      * @dev Stores the Klay threshold.
@@ -57,31 +57,31 @@ contract KlayScooper {
      * @dev Reverts if the zero tokens are sent.
     */
 
-    error KlayScooper__ZeroLengthArray();
+    error TokensScooper__ZeroLengthArray();
 
     /**
      * @dev Reverts if the amount gotten from Klayswap is less than the threshold.
     */
 
-    error KlayScooper__InsufficientAmount();
+    error TokensScooper__InsufficientAmount();
 
     /**
      * @dev Reverts if the tokens to swap amount is less than zero.
     */
 
-    error KlayScooper__InsufficientTokens();
+    error TokensScooper__InsufficientTokens();
 
     /**
      * @dev Reverts if the allowance is less than the amount of tokens to swap.
     */
 
-    error KlayScooper__InsufficientAllowance();
+    error TokensScooper__InsufficientAllowance();
 
     /**
      * @dev Reverts if the token to swap is not KIP7 compatible.
     */
 
-    error KlayScooper__UnsupportedToken();
+    error TokensScooper__UnsupportedToken();
 
     /**
      * @notice constructor
@@ -93,20 +93,27 @@ contract KlayScooper {
         i_owner = msg.sender;
     }
 
+    /// view and pure functions
 
-
-    function swapperBalance(address wklay) external view returns (uint) {
+    function swapperBalance(address wklay) public view returns (uint) {
         return swapperKlayBalance[wklay];
     }
 
-    function versionCheck() external pure returns (string memory) {
+    function versionCheck() public pure returns (string memory) {
         return version;
     }
 
-    function klayThreshold() external pure returns (uint) {
+    function klayThreshold() public pure returns (uint) {
         return MIN_KLAY_AMOUNT;
     }
 
+    function owner() public view returns (address) {
+        return i_owner;
+    }
+
+    function router() public view returns (address) {
+        return i_RouterAddress;
+    }
     /**
      * @notice KIP7 Token Interface Support.
      *
@@ -114,6 +121,8 @@ contract KlayScooper {
      *
      * @return Whether or not the token interface is supported by this contract.
     */
+
+   /// internal functions
 
     function _checkIfKIP7Token(address tokenAddress) internal view returns (bool) {
         KIP7 token = KIP7(tokenAddress);
@@ -127,28 +136,31 @@ contract KlayScooper {
      *
     */
 
+    // external functions
+    
     function swapTokensForKlay(address[] calldata tokenAddresses) external {
-        if(tokenAddresses.length > 0) revert KlayScooper__ZeroLengthArray();
+        if(tokenAddresses.length > 0) revert TokensScooper__ZeroLengthArray();
 
         for(uint256 i = 0; i < tokenAddresses.length; i++) {
             address tokenAddress = tokenAddresses[i];
 
             (bool ok) = _checkIfKIP7Token(tokenAddress);
-            if(!ok) revert KlayScooper__UnsupportedToken();
+            if(!ok) revert TokensScooper__UnsupportedToken();
 
             KIP7 token = KIP7(tokenAddress);
 
             uint256 tokenAmount = token.balanceOf(msg.sender);
-            if(tokenAmount > 0) revert KlayScooper__InsufficientTokens();
+            if(tokenAmount > 0) revert TokensScooper__InsufficientTokens();
+
             uint256 allowance = token.allowance(msg.sender, address(this));
-            if(allowance <= tokenAmount) revert KlayScooper__InsufficientAllowance();
+            if(allowance <= tokenAmount) revert TokensScooper__InsufficientAllowance();
 
             address[] memory path = new address[](2);
             path[0] = tokenAddress;
             path[1] = IKlaySwapRouter(i_RouterAddress).WKLAY();
 
             uint256[] memory amounts = IKlaySwapRouter(i_RouterAddress).getAmountsOut(tokenAmount, path);
-            if(amounts[amounts.length - 1] >= MIN_KLAY_AMOUNT) revert KlayScooper__InsufficientAmount();
+            if(amounts[amounts.length - 1] >= MIN_KLAY_AMOUNT) revert TokensScooper__InsufficientAmount();
 
             TransferHelper.safeTransferFrom(tokenAddress, msg.sender, address(this), tokenAmount);
             TransferHelper.safeApprove(tokenAddress, i_RouterAddress, tokenAmount);
