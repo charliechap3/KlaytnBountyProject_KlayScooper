@@ -42,13 +42,13 @@ contract TokensScooper {
      * @dev wrapped Klay address;
     */
 
-    address public immutable WKLAY;
+    KIP7 public immutable WKLAY;
 
     /**
      * @dev mapping of WKLAY to swapper's balance;
     */
 
-    mapping (address => (mapping (address => uint))) private swapperKlayBalance;
+    mapping (address => mapping (address => uint)) private swapperKlayBalance;
 
     /**
      * @notice Emitted whenever tokens are minted for an account.
@@ -101,10 +101,6 @@ contract TokensScooper {
     }
 
     /// view and pure functions
-
-    function swapperBalance() public view returns (uint) {
-        return swapperKlayBalance[msg.sender][WKLAY];
-    }
 
     function versionCheck() public pure returns (string memory) {
         return i_version;
@@ -160,7 +156,7 @@ contract TokensScooper {
             if(tokenAmount < 0) revert TokensScooper__InsufficientTokensAmount();
 
             uint256 allowance = token.allowance(msg.sender, address(this));
-            if(allowance <= tokenAmount) revert TokensScooper__InsufficientAllowance();
+            if(allowance < tokenAmount) revert TokensScooper__InsufficientAllowance();
 
             address[] memory path = new address[](2);
             path[0] = tokenAddress;
@@ -169,7 +165,6 @@ contract TokensScooper {
             uint256[] memory amounts = IKlaySwapRouter(i_RouterAddress).getAmountsOut(tokenAmount, path);
             if(amounts[amounts.length - 1] >= MIN_KLAY_AMOUNT) revert TokensScooper__InsufficientAmount();
 
-            TransferHelper.safeTransferFrom(tokenAddress, msg.sender, address(this), tokenAmount);
             TransferHelper.safeApprove(tokenAddress, i_RouterAddress, tokenAmount);
 
             IKlaySwapRouter(i_RouterAddress).swapExactTokensForKLAY(

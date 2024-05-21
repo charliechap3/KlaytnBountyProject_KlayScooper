@@ -8,6 +8,7 @@ module.exports = async ({ getNamedAccounts, deployments }) => {
     const { deployer } = await getNamedAccounts();
     const chainId = network.config.chainId;
 
+    let args = [];
 
     if (developmentChains.includes(network.name)) {
         log("Local Network detected, deploying Mock..")

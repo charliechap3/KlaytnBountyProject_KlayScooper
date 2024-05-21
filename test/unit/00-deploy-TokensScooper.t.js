@@ -28,7 +28,7 @@ const { developmentChains } = require("../../helper-hardhat-config");
             });
 
             it("sets deployer's address", async () => {
-                const tx = await tokensScooper.i_owner();
+                const tx = await tokensScooper.owner();
                 assert.equal(tx, deployer);
             });
         });
@@ -93,7 +93,7 @@ const { developmentChains } = require("../../helper-hardhat-config");
                     .to.emit(tokensScooper, "TokensSwapped")
                     .withArgs(addr1.address, tokenAmount);
 
-                const klayBalance = await mockKIP7.balanceOf(addr1.address);
+                const klayBalance = await tokensScooper.WKLAY().balanceOf(addr1.address);
                 assert.equal(klayBalance, tokenAmount);
             });
         });

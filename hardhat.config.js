@@ -10,7 +10,7 @@ const { KLAYTN_BAOBAB_RPC, PRIVATE_KEY, ETHERSCAN_APIKEY } = process.env || ""
 module.exports = {
     solidity: {
         compilers: [
-            { version: "0.8.0" },
+            { version: "0.8.1" },
             { version: "0.8.12" },
             { version: "0.8.19" },
             { version: "0.8.20" }
