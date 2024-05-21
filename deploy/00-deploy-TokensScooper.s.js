@@ -32,10 +32,3 @@ const deployTokensScooper = async ({ getNamedAccounts, deployments }) => {
 module.exports.default = deployTokensScooper;
 module.exports.tags = ["all", "tokensScooper"];
 
-
-// a7e16cc8ea9740ca92dd01a34ab691120e4b0f9e74a3bf18d7273a0d860a6002 pk
-// a7e16cc8ea9740ca92dd01a34ab691120e4b0f9e74a3bf18d7273a0d860a6002 fpk
-
-// 0xe4f05a66ec68b54a58b17c22107b02e0232cc817 to
-
-// 0x5664eeeE3C63431eF1981f2bDBaB2690ee33f1e8 fpa
