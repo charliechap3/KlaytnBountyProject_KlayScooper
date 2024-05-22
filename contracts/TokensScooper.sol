@@ -50,6 +50,9 @@ contract TokensScooper {
 
     mapping (address => mapping (address => uint)) private swapperKlayBalance;
 
+    address[] addresses;
+
+    uint256[] amounts;
     /**
      * @notice Emitted whenever tokens are minted for an account.
      *
@@ -145,27 +148,35 @@ contract TokensScooper {
         if(tokenAddresses.length > 0) revert TokensScooper__ZeroLengthArray();
 
         for(uint256 i = 0; i < tokenAddresses.length; i++) {
-            address tokenAddress = tokenAddresses[i];
 
-            (bool ok) = _checkIfKIP7Token(tokenAddress);
+            (bool ok) = _checkIfKIP7Token(tokenAddresses[i]);
             if(!ok) revert TokensScooper__UnsupportedToken();
 
-            KIP7 token = KIP7(tokenAddress);
+            KIP7 token = KIP7(tokenAddresses[i]);
 
             uint256 tokenAmount = token.balanceOf(msg.sender);
+
             if(tokenAmount < 0) revert TokensScooper__InsufficientTokensAmount();
 
-            uint256 allowance = token.allowance(msg.sender, address(this));
-            if(allowance < tokenAmount) revert TokensScooper__InsufficientAllowance();
+            tokenToAddress[tokenAmount] = tokenAddresses[i]
 
-            address[] memory path = new address[](2);
-            path[0] = tokenAddress;
-            path[1] = IKlaySwapRouter(i_RouterAddress).WKLAY();
+            amounts.push(tokenAmount);
+        }
 
-            uint256[] memory amounts = IKlaySwapRouter(i_RouterAddress).getAmountsOut(tokenAmount, path);
+        uint256[] memory amountsToken = amounts;
+        address[] memory path = new address[](2);
+
+        for(uint256 j = 0; j < amountsToken.length; j ++) {
+            address token0 = tokenToAddress[amountsToken[j]];
+
+            path[0] = token0; // tokenToAddress[]
+            path[1] = address(WKLAY);
+
+            uint256[] memory amounts = IKlaySwapRouter(i_RouterAddress).getAmountsOut(amountsToken[j], path);
             if(amounts[amounts.length - 1] >= MIN_KLAY_AMOUNT) revert TokensScooper__InsufficientAmount();
+        }
 
-            TransferHelper.safeApprove(tokenAddress, i_RouterAddress, tokenAmount);
+           TransferHelper.safeApprove(tokenAddress, i_RouterAddress, tokenAmount);
 
             IKlaySwapRouter(i_RouterAddress).swapExactTokensForKLAY(
                 tokenAmount, 
