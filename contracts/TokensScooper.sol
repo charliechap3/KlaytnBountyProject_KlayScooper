@@ -89,21 +89,27 @@ contract TokensScooper {
         return i_RouterAddress;
     }
 
-    /// internal functions
-    // /**
-    //  * @notice KIP7 Token Interface Support.
-    //  *
-    //  * @param _interfaceId token address to check.
-    //  *
-    //  * @return Whether or not the token interface is supported by this contract.
-    // */
+    // internal functions
+    /**
+     * @notice KIP7 Token Interface Support.
+     *
+     * @param tokenAddress token address to check.
+     *
+     * @return Whether or not the token interface is supported by this contract.
+    */
 
     function _checkIfKIP7Token(address tokenAddress) internal view returns (bool) {
         KIP7 token = KIP7(tokenAddress);
         return token.supportsInterface(interfaceId);
     }
 
-   function _zeroAddressCheck(address _address) internal pure {
+    /**
+     * @notice Low-level Zero Address Check.
+     *
+     * @param _address token address to check.
+    */
+
+    function _zeroAddressCheck(address _address) internal pure {
       assembly {
         if iszero(_address) {
           revert(0,0)
@@ -120,7 +126,7 @@ contract TokensScooper {
     */
     
     function swapTokensForKlay(address[] calldata tokenAddresses) external {
-        if(tokenAddresses.length < 0) revert TokensScooper__ZeroLengthArray();
+        if(tokenAddresses.length <= 0) revert TokensScooper__ZeroLengthArray();
 
         for(uint256 i = 0; i < tokenAddresses.length; i++) {
             address tokenAddress = tokenAddresses[i];
