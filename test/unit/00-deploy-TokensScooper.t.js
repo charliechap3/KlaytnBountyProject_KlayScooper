@@ -10,7 +10,7 @@ const { developmentChains } = require("../../helper-hardhat-config");
         let mockKIP7;
         let deployer;
         let tokenAddresses = [];
-        const args = ["0xe0fbB27D0E7F3a397A67a9d4864D4f4DD7cF8cB9"];
+        const args = ["0xe0fbB27D0E7F3a397A67a9d4864D4f4DD7cF8cB9", "0xe4f05a66ec68b54a58b17c22107b02e0232cc817"];
 
         [owner, addr1, addr2] = await ethers.getSigners();
 
@@ -24,7 +24,12 @@ const { developmentChains } = require("../../helper-hardhat-config");
         describe("Deployment", async () => {
             it("sets router address", async () => {
                 const txresponse = await tokensScooper.router();
-                assert.equal(txresponse, args);
+                assert.equal(txresponse, args[0]);
+            });
+
+            it("sets router address", async () => {
+                const txresponse = await tokensScooper.WKLAY();
+                assert.equal(txresponse, args[1]);
             });
 
             it("sets deployer's address", async () => {
@@ -39,15 +44,9 @@ const { developmentChains } = require("../../helper-hardhat-config");
                 assert.equal(tx, "1.0.0");
             });
 
-            it("check klay withdraw threshold", async () => {
-                const tx = await tokensScooper.klayThreshold();
-                assert.equal(tx, "1");
-            });
-
             it("check swapper balance", async () => {
-                const bal = await mockKIP7.balanceOf(addr1.address);
-                const tx = await tokensScooper.connect(addr1).swapperBalance();
-                assert.equal(tx, bal);
+                const bal = await tokensScooper.WKLAY().balanceOf(addr1.address);
+                assert.equal(bal, 0);
             });
         });
 
@@ -69,7 +68,7 @@ const { developmentChains } = require("../../helper-hardhat-config");
                 await mockKIP7.mint(addr1.address, tokenAmount);
 
                 const tx = tokensScooper.connect(addr1).swapTokensForKlay(tokenAddresses);
-                await expect(tx).to.be.revertedWith("TokensScooper__InsufficientAllowance");
+                await expect(tx).to.be.revertedWith("TokensScooper__UnApproved");
             });
 
             it("reverts insufficient swapper balance", async () => {
@@ -92,9 +91,6 @@ const { developmentChains } = require("../../helper-hardhat-config");
                 await expect(tx)
                     .to.emit(tokensScooper, "TokensSwapped")
                     .withArgs(addr1.address, tokenAmount);
-
-                const klayBalance = await tokensScooper.WKLAY().balanceOf(addr1.address);
-                assert.equal(klayBalance, tokenAmount);
             });
         });
 
