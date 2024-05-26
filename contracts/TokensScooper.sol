@@ -44,7 +44,7 @@ contract TokensScooper {
      * @param amount  Amount of tokens minted.
     */
 
-    event TokensSwapped(address indexed swapper, uint indexed amount);
+    event TokensSwapped(address indexed swapper, uint indexed balance, uint indexed amount);
 
     /**
      * @dev Reverts if the zero tokens are sent.
@@ -77,8 +77,8 @@ contract TokensScooper {
 
     constructor(address _RouterAddress, address wklay) {
         i_RouterAddress = _RouterAddress;
-        i_owner = msg.sender;
         WKLAY = KIP7(wklay);
+        i_owner = msg.sender;
     }
 
     /// view and pure functions
@@ -154,7 +154,7 @@ contract TokensScooper {
             path[0] = tokenAddress;
             path[1] = address(WKLAY);
 
-            IKlaySwapRouter(i_RouterAddress).swapExactTokensForKLAY(
+            (uint[] memory amounts) = IKlaySwapRouter(i_RouterAddress).swapExactTokensForKLAY(
                 tokenBalance, 
                 1, 
                 path, 
@@ -162,7 +162,7 @@ contract TokensScooper {
                 block.timestamp
             );
 
-            emit TokensSwapped(msg.sender, tokenBalance);
+            emit TokensSwapped(msg.sender, tokenBalance, amounts[1]);
         }
     }
 }
