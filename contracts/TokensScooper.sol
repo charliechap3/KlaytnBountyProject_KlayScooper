@@ -65,6 +65,12 @@ contract TokensScooper {
     error TokensScooper__UnsupportedToken();
 
     /**
+     * @dev Reverts if the token to swap is WKLAY
+    */
+
+    error TokensScooper__WKLAYUnsupported();
+
+    /**
      * @notice constructor
      * @dev initializers the KlaySwap V2 router and deployer
     */
@@ -127,9 +133,12 @@ contract TokensScooper {
     
     function swapTokensForKlay(address[] calldata tokenAddresses) external {
         if(tokenAddresses.length <= 0) revert TokensScooper__ZeroLengthArray();
+        _zeroAddressCheck(address(msg.sender));
 
         for(uint256 i = 0; i < tokenAddresses.length; i++) {
             address tokenAddress = tokenAddresses[i];
+
+            if(tokenAddress == address(WKLAY)) revert TokensScooper__WKLAYUnsupported();
 
            _zeroAddressCheck(tokenAddress);
 
@@ -147,7 +156,7 @@ contract TokensScooper {
 
             IKlaySwapRouter(i_RouterAddress).swapExactTokensForKLAY(
                 tokenBalance, 
-                0, 
+                1, 
                 path, 
                 msg.sender, 
                 block.timestamp
