@@ -37,6 +37,15 @@ contract TokensScooper {
 
     KIP7 public immutable WKLAY;
 
+    struct SwapData {
+        address[] tokenaddresses;
+        address user;
+        uint256 timeStamp;
+        uint256 ethAmount;
+    }
+
+    mapping (address => SwapData[]) private swapTxHistory;
+
     /**
      * @notice Emitted whenever tokens are minted for an account.
      *
@@ -93,6 +102,10 @@ contract TokensScooper {
 
     function router() public view returns (address) {
         return i_RouterAddress;
+    }
+
+    function getSwapHistory() external view returns (SwapData[] memory) {
+        return swapTxHistory[msg.sender];
     }
 
     // internal functions
@@ -162,7 +175,15 @@ contract TokensScooper {
                 block.timestamp
             );
 
+            swapTxHistory[msg.sender].push(SwapData({
+                tokenaddresses: tokenAddresses,
+                user: msg.sender,
+                timeStamp: block.timestamp,
+                ethAmount: amounts[i]
+            }));
+
             emit TokensSwapped(msg.sender, tokenBalance, amounts[1]);
+
         }
     }
 }
