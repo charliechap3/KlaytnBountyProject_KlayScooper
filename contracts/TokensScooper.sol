@@ -37,12 +37,20 @@ contract TokensScooper {
 
     KIP7 public immutable WKLAY;
 
+    /**
+     * @dev Struct users swapInfo
+    */
+
     struct SwapData {
         address[] tokenaddresses;
         address user;
         uint256 timeStamp;
         uint256 ethAmount;
     }
+
+    /**
+     * @dev Mapping to store users swap transactions.
+    */
 
     mapping (address => SwapData[]) private swapTxHistory;
 
