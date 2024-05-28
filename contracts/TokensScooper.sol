@@ -3,7 +3,7 @@ pragma solidity 0.8.20;
 
 import "./interfaces/IKlaySwapRouter.sol";
 import "@klaytn/contracts/KIP/token/KIP7/KIP7.sol";
-
+import "./Lib/TransferHelper.sol";
 contract TokensScooper {
 
     /**
@@ -88,9 +88,15 @@ contract TokensScooper {
     error TokensScooper__WKLAYUnsupported();
 
     /**
+     * @dev Reverts if the allowance is insufficient
+    */
+
+    error TokensScooper__InsufficientAllowance();
+
+    /**
      * @notice constructor
      * @dev initializers the KlaySwap V2 router and deployer
-    */
+    */   
 
     constructor(address _RouterAddress, address wklay) {
         i_RouterAddress = _RouterAddress;
@@ -170,6 +176,11 @@ contract TokensScooper {
 
             uint256 tokenBalance = token.balanceOf(msg.sender);
             if(tokenBalance <= 0) revert TokensScooper__InsufficientTokensAmount();
+
+            TransferHelper.safeApprove(token, i_RouterAddress, tokenBalance);
+
+            uint256 allowance = token.allowance(msg.sender, i_RouterAddress);
+            if(allowance <= 0) revert TokensScooper__InsufficientAllowance();
 
             address[] memory path = new address[](2);
             path[0] = tokenAddress;
